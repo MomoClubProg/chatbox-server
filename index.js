@@ -1,4 +1,6 @@
+// Out DB bindings, made by Alexis Hogue
 const DB = require('chatbox-db');
+
 const express = require('express');
 const socket = require('socket.io');
 const http = require('node:http');
@@ -8,16 +10,40 @@ const app = express();
 const server = http.createServer(app);
 const io = new socket.Server(server);
 
+class USER_HEAP {
+  
+  constructor() {
+    this.users = {};
+  }
+
+  addUser(name, data) {
+    this.users[name] = data;
+  }
+
+  getUser(name) { 
+    return this.users[name] || undefined
+  }
+
+};
+
+const user_heap = new USER_HEAP();
+
 // LISTENER EVENTS
 io.on('connection', (socket) => {
   
   socket.on('login', (data) => {
     // User just logged in!
+    let channelID = data.channelID;
+    user_heap.addUser(name, data);
+    socket.emit('loginResponse', DB.getMessages());
   })
 
   socket.on('sendMessage', (msg) => {
     // Client sent a message!
     DB.addMessage(msg);
+    socket
+      .to(user_heap.getUser(msg.username).channelID)
+      .broadcast.emit('postMessage', msg);
   })
 
   /*
