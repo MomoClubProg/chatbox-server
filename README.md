@@ -14,5 +14,5 @@ npm ci
 ## Run
 
 ```
-node index.js
+npm start
 ```

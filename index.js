@@ -1,3 +1,4 @@
+const DB = require('chatbox-db');
 const express = require('express');
 const socket = require('socket.io');
 const http = require('node:http');
@@ -16,6 +17,7 @@ io.on('connection', (socket) => {
 
   socket.on('sendMessage', (msg) => {
     // Client sent a message!
+    DB.addMessage(msg);
   })
 
   /*
