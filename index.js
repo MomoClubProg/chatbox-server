@@ -11,13 +11,13 @@ const server = http.createServer(app);
 const io = new socket.Server(server);
 
 class USER_HEAP {
-  
+
   constructor() {
     this.users = {};
   }
 
-  addUser(name, data) {
-    this.users[name] = data;
+  addUser(data) {
+    this.users[data.name] = data;
   }
 
   getUser(name) { 
@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
   socket.on('login', (data) => {
     // User just logged in!
     let channelID = data.channelID;
-    user_heap.addUser(name, data);
+    user_heap.addUser(data);
     socket.emit('loginResponse', DB.getMessages());
   })
 
