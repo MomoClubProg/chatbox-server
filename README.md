@@ -8,6 +8,8 @@ A server application for the tui chatbox project
 git clone https://github.com/MomoClubProg/chatbox-server.git
 
 cd chatbox-server
+git submodule update
+
 npm ci
 ```
 
