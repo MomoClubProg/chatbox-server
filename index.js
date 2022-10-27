@@ -43,7 +43,7 @@ io.on('connection', (socket) => {
     DB.addMessage(msg);
     socket
       .to(user_heap.getUser(msg.username).channelID)
-      .broadcast.emit('postMessage', msg);
+      .emit('postMessage', msg);
   })
 
   /*
