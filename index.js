@@ -1,5 +1,11 @@
-// Out DB bindings, made by Alexis Hogue
-const DB = require('chatbox-db');
+// Our DB bindings, made by Alexis Hogue
+const DB = new (require('chatbox-db'))();
+
+// USER_DB
+const USER_HEAP = require('./user_db/index')
+
+// Server modules
+const Logger = require('./logger/index');
 
 const express = require('express');
 const socket = require('socket.io');
@@ -10,23 +16,9 @@ const app = express();
 const server = http.createServer(app);
 const io = new socket.Server(server);
 
-class USER_HEAP {
-
-  constructor() {
-    this.users = {};
-  }
-
-  addUser(data) {
-    this.users[data.username] = data;
-  }
-
-  getUser(name) { 
-    return this.users[name] || undefined
-  }
-
-};
-
 const user_heap = new USER_HEAP();
+
+
 
 // LISTENER EVENTS
 io.on('connection', (socket) => {
@@ -34,28 +26,43 @@ io.on('connection', (socket) => {
   socket.on('login', (data) => {
     // User just logged in!
     try { 
-    user_heap.addUser(data);
-    socket.join(data.Channel);
-    console.log(user_heap);
-    console.log('User logged in');
+
+      if (!user_heap.exists(data.username)) 
+        user_heap.addUser(data);
+    
+      DB.load(data.Channel);
+
+      socket.join(data.Channel);
+  
+      Logger.user(data.username, `Just joined chat room ${data.Channel}`);
 
 
-    socket.emit('loginResponse', DB.getMessages(data.Channel));
+      socket.emit('loginResponse', { 
+        invalid: false,
+        data: DB.getMessages(data.Channel) 
+      });
+
+
+      DB.save(data.Channel);
+
     } catch(e) {console.log(e)}
+
   })
 
   socket.on('sendMessage', (msg) => {
     // Client sent a message!
     console.log('New message', msg);
-    DB.addMessage(user_heap.getUser(msg.username).Channel, msg);
+    console.log(msg.message)
 
-    if (!Object.keys(user_heap.users).includes(msg.username)) {
-      user_heap.addUser({username:'BOT'});
-    }
-
+    // CLIENT SHOULD CALL A SERVER LOGIN UNTIL IT CONNECTS
+    let user = user_heap.getUser(msg.username);
     socket
-      .to(user_heap.getUser(msg.username).Channel)
+      .to(user.Channel)
       .emit('postMessage', msg);
+
+    DB.addMessage(user.Channel, msg);
+
+    DB.save(user.Channel);
   })
 
   /*
