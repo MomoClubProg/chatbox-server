@@ -1,15 +1,9 @@
+// Store connected users in heap
+// TODO: Index with md5 hashes
 class USER_HEAP {
 
   constructor() {
     this.users = {};
-  }
-
-  load() {
-    
-  }
-
-  save() {
-
   }
 
   exists(username) {

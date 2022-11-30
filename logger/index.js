@@ -1,7 +1,6 @@
 
 class Logger {
 
-
   static dd(v) {
     return ("00" + v.toString()).slice(-2);
   }
@@ -17,17 +16,34 @@ class Logger {
   static dateString() {
     let date = new Date();
 
-    return 
-      `${Logger.date(date)} ` +
-      `${Logger.date(time)} `
+    return (
+      `\x1b[96m${Logger.date(date)} \x1b[0m` +
+      `\x1b[96m${Logger.time(date)} \x1b[0m`
+    )
       
   }
 
-  static user(username, message) {
+  static user(user) {
+
+    let byte_message = "";
+    let str = user.message.toString();
+    for (let i = 0; i < user.message.length; i++) {
+      byte_message += str.charCodeAt(i).toString(16) + " ";
+    }
+
     console.log(
       `${Logger.dateString()}` + 
-      ((username !== undefined) ? `<\x1b[92m${username}\x1b[0m>` : '') +
-      ((message !== undefined) ? `\x1b[92m${message}\x1b[0m` : '')
+      ((user.username !== undefined) ? `<\x1b[92m${user.username}\x1b[0m> ` : '') +
+      ((user.message !== undefined) ? ` ${byte_message}` : '')
+    )
+  }
+
+  static userJoin(user) {
+    console.log(
+      `${Logger.dateString()}` + 
+      ((user.username !== undefined) ? `<\x1b[92m${user.username}\x1b[0m> ` : '') +
+      ((user.userTag !== undefined) ? `\x1b[92m${user.userTag}\x1b[0m ` : '') +
+      ((user.message !== undefined) ? ` joined channel ${user.Channel}` : '')
     )
   }
 

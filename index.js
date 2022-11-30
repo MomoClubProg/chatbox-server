@@ -18,8 +18,6 @@ const io = new socket.Server(server);
 
 const user_heap = new USER_HEAP();
 
-
-
 // LISTENER EVENTS
 io.on('connection', (socket) => {
   
@@ -34,12 +32,11 @@ io.on('connection', (socket) => {
 
       socket.join(data.Channel);
   
-      Logger.user(data.username, `Just joined chat room ${data.Channel}`);
-
+      Logger.userJoin(data);
 
       socket.emit('loginResponse', { 
         invalid: false,
-        data: DB.getMessages(data.Channel) 
+        data: DB.getMessages(data.Channel)
       });
 
 
@@ -51,31 +48,23 @@ io.on('connection', (socket) => {
 
   socket.on('sendMessage', (msg) => {
     // Client sent a message!
-    console.log('New message', msg);
-    console.log(msg.message)
-
-    // CLIENT SHOULD CALL A SERVER LOGIN UNTIL IT CONNECTS
     let user = user_heap.getUser(msg.username);
     socket
       .to(user.Channel)
       .emit('postMessage', msg);
 
-    DB.addMessage(user.Channel, msg);
 
+    Logger.user(msg);
+    
+    DB.addMessage(user.Channel, msg);
     DB.save(user.Channel);
   })
-
-  /*
-  socket.on('myOtherEvent', (msg) => {
-     
-    // Do something when `myOtherEvent` is triggered by a client
-  
-  }) */
 
 })
 
 // SERVER LISTEN
 server.listen(3000, () => {
-  console.log(`http://10.0.0.1:3000`);
+  console.log(`\x1b[92m --- CHATBOX SERVER ON --- \x1b[0m`);
+  console.log(`http://127.0.0.1:3000`);
 })
 
